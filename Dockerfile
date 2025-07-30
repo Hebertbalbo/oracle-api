@@ -27,5 +27,4 @@ RUN echo "instantclient,${ORACLE_HOME}" | pecl install oci8 && \
     docker-php-ext-enable oci8
 
 # Copia os arquivos do projeto (assumindo que estão na pasta public/)
-COPY src/public/ /var/www/html/
-
+COPY public/ /var/www/html/
