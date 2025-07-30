@@ -36,5 +36,5 @@ while (($row = oci_fetch_array($stid, OCI_ASSOC + OCI_RETURN_NULLS)) != false) {
 oci_free_statement($stid);
 oci_close($conn);
 
+// ✅ Adicione esta linha para retornar os dados
 echo json_encode($dados);
-?>
