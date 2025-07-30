@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json');
 
-$tokenEsperado = 'minha-chave-secreta';
+$tokenEsperado = 'mywdaj-banQih-3dowjo';
 
 if (!isset($_GET['token']) || $_GET['token'] !== $tokenEsperado) {
     http_response_code(403);
