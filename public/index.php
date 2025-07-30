@@ -48,4 +48,3 @@ oci_close($conn);
 
 // ✅ Retorna os dados como JSON
 echo json_encode($dados);
-
