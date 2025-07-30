@@ -1,32 +1,30 @@
 FROM php:8.2-apache
 
+# Instala dependências do sistema
 RUN apt-get update && apt-get install -y \
     unzip \
     libaio1 \
     wget \
-    curl \
     gnupg2 \
+    curl \
     libzip-dev \
+    alien \
     && docker-php-ext-install mysqli
 
-# Instala Oracle Instant Client via workaround com header de licença
-RUN mkdir -p /opt/oracle && \
-    cd /opt/oracle && \
-    curl -L -o instantclient.zip \
-    -H "Cookie: oraclelicense=accept-securebackup-cookie" \
-    https://download.oracle.com/otn_software/linux/instantclient/2113000/instantclient-basiclite-linux.x64-21.13.0.0.0.zip && \
-    unzip instantclient.zip && \
-    rm instantclient.zip && \
-    echo /opt/oracle/instantclient_21_13 > /etc/ld.so.conf.d/oracle-instantclient.conf && \
-    ldconfig
+# Baixa e instala Oracle Instant Client via RPM (converter com alien)
+RUN mkdir -p /opt/oracle && cd /opt/oracle && \
+    wget https://yum.oracle.com/repo/OracleLinux/OL8/oracle/instantclient21/x86_64/getPackage/oracle-instantclient-basiclite-21.13.0.0.0-1.el8.x86_64.rpm && \
+    wget https://yum.oracle.com/repo/OracleLinux/OL8/oracle/instantclient21/x86_64/getPackage/oracle-instantclient-sdk-21.13.0.0.0-1.el8.x86_64.rpm && \
+    alien -i oracle-instantclient-basiclite-*.rpm && \
+    alien -i oracle-instantclient-sdk-*.rpm
 
-# Variáveis de ambiente do Oracle
-ENV LD_LIBRARY_PATH=/opt/oracle/instantclient_21_13
-ENV ORACLE_HOME=/opt/oracle/instantclient_21_13
+# Variáveis de ambiente Oracle
+ENV LD_LIBRARY_PATH=/usr/lib/oracle/21/client64/lib
+ENV ORACLE_HOME=/usr/lib/oracle/21/client64
 
-# Instala e ativa o oci8
-RUN echo "instantclient,/opt/oracle/instantclient_21_13" | pecl install oci8 && \
+# Instala oci8
+RUN echo "instantclient,${ORACLE_HOME}" | pecl install oci8 && \
     docker-php-ext-enable oci8
 
-# Copia arquivos da pasta public
+# Copia os arquivos do projeto (assumindo que estão na pasta public/)
 COPY public/ /var/www/html/
